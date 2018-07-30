@@ -61,7 +61,6 @@ int main(int argc, char **argv)
  struct sockaddr_in servaddr;
  char sendline[MAXLINE], recvline[MAXLINE];
  char threadVar[MAXLINE];
- char command[MAXLINE];
  int alarm_period=30;
  /*signal(SIGALRM, on_alarm);*/
  #ifndef __WIN32__
@@ -73,8 +72,12 @@ int main(int argc, char **argv)
  time_t time_of_day;
  /*time_of_day=time(NULL);
  printf(ctime(&time_of_day));*/
- logFile = fopen("C:\\temp\\a3Client1.log", "wa");
+ logFile = fopen("C:\\temp\\a3P2Client2.log", "wa");
+ if (!logFile)
+ {
+     perror("Error: unable to open file.");
 
+ }
  /* alarm(300);  // to terminate after 300 seconds
 
  //basic check of the arguments
@@ -114,29 +117,29 @@ if(WSAStartup(MAKEWORD(2,2),&wsaData)!=0)
   perror("Problem in connecting to the server");
   exit(3);
  }
+
  while (fgets(sendline, MAXLINE, stdin) != NULL) {
 
   send(sockfd, sendline, strlen(sendline), 0);
 
   if (recv(sockfd, recvline, MAXLINE,0) == 0){
+  sprintf(threadVar, "%d %d", getpid(), pthread_self());
+
    /*error: server terminated prematurely*/
    perror("The server terminated prematurely");
    exit(4);
   }
   printf("Recieved data.\n");
-  sprintf(threadVar, "%d %d", getpid(), pthread_self());
 #ifdef __WIN32__
     Sleep(3);
 #else
     sleep(3);
 #endif
   printf("%s", "String received from the server: ");
+  fputs(recvline, stdout);
   fputs(recvline, logFile);
   fputs(threadVar, logFile);
-  fflush(logFile);
-
-  fputs(recvline, stdout);
  }
-fclose(logFile);
+ fclose(logFile);
  exit(0);
 }
